@@ -2,6 +2,9 @@
 const int rows = 5;
 const int cols = 5;
 
+int matrix1D_Size = rows*cols;
+
+
 const int * rows_ptr = &rows;
 const int * cols_ptr = &cols;
 
