@@ -96,9 +96,12 @@ void fillMatrixPtr1D(int(*ptr_matrix)[rows*cols], int &rows, int &cols)
 //Print 1D Array matrix
 void printMatrix1DArray(int array[], int &size, int &cols) 
 {
-
+	//Sweep through all values
 	for (int i = 0; i < size; i++) 
-	{
+	{	
+		//If current index is a multiple of cols, 
+		//this element is the first value of a row.
+		//So skip line to start printing new row.
 		if (i%cols == 0)
 		{
 			cout << endl;
@@ -108,6 +111,7 @@ void printMatrix1DArray(int array[], int &size, int &cols)
 	cout << endl;
 }
 
+//Print a 2D Array matrix
 void printMatrix(int matrix[rows][cols])
 {
 	for (int row = 0; row < rows; row++)
@@ -121,6 +125,7 @@ void printMatrix(int matrix[rows][cols])
 	}
 }
 
+//Print a 2D Array matrix using pointers
 void printMatrixPtr(int (*matrix)[rows][cols], int &rows, int &cols)
 {
 	for (int row = 0; row < rows; row++)
@@ -134,7 +139,7 @@ void printMatrixPtr(int (*matrix)[rows][cols], int &rows, int &cols)
 	}
 }
 
-
+//Swap 2 elements of a 2D Array matrix
 void swapMatrixElements(int matrix[rows][cols], int &row, int &col)
 {
 	int temp;
@@ -143,6 +148,7 @@ void swapMatrixElements(int matrix[rows][cols], int &row, int &col)
 	matrix[col][row] = temp;
 }
 
+//Swap 2 elements of a 2D array matrix using pointers
 void swapMatrixElementsPtr(int (*matrix)[rows][cols], int &row, int &col)
 {
 	int temp;
@@ -151,10 +157,21 @@ void swapMatrixElementsPtr(int (*matrix)[rows][cols], int &row, int &col)
 	(*matrix)[col][row] = temp;
 }
 
+//Transpose a 2D Array Matrix
 void transposeMatrix(int matrix[rows][cols])
-{
+{	
+	//Sweep through rows
 	for (int row = 0; row < rows - 1; row++)
 	{	
+		//For each row, only go through the entry in the upper triangular matrix
+		//and swap them with their corresponding entry in the lower triangular matrix
+		//Example:
+		//Take this 3x3 matrix
+		//a11 a12 a13
+		//a21 a22 a23
+		//a31 a32 a33
+		//Here a12 is in the upper triangular matrix and its corresponding entry in the lower triangular matrix is a21
+		//Same relation for the pairs a13-a31 and a23-a32
 		int col_start_index = row + 1;
 
 		for (int col = col_start_index; col < cols; col++)
@@ -164,6 +181,7 @@ void transposeMatrix(int matrix[rows][cols])
 	}
 }
 
+//Transpose a 2D Array Matrix using pointers. (See function above for in depth explanation of algorithm)
 void transposeMatrix(int (*matrix_ptr)[rows][cols], int &rows, int &cols)
 {
 	for (int row = 0; row < rows - 1; row++)
@@ -177,15 +195,19 @@ void transposeMatrix(int (*matrix_ptr)[rows][cols], int &rows, int &cols)
 	}
 }
 
-//A*B
-//O(n^2) complexity
+//Multiply matrixA and matrixB and put result in matrixC
+//This algorithm is the long method with O(n^3) complexity
 int multMatrices(int matrixA[rows][cols], int matrixB[rows][cols], int result[rows][cols])
-{
+{	
+	//Sweep rows of A
 	for(int rowA = 0; rowA < rows; rowA++)
 
+		//For each rows of A, sweep cols of B
 		for (int colB = 0; colB < cols ; colB++)
 		{	
 			int sum = 0;
+
+			//For each cols of B, sweep the rows of B and the cols of A  and multiply the corresponding entries
 			for (int colA_rowB = 0; colA_rowB < cols; colA_rowB++)
 			{
 				sum += matrixA[rowA][colA_rowB] * matrixB[colA_rowB][colB];
@@ -195,55 +217,18 @@ int multMatrices(int matrixA[rows][cols], int matrixB[rows][cols], int result[ro
 	return 0;
 }
 
-//A*B
-//O(n^2) complexity
-void matrixMultrecursive(
-	int row1, int col1, 
-	int A[rows][cols], 
-	int row2, int col2, 
-	int B[rows][cols], 
-	int C[rows][cols])
-{
-	static int i = 0, j = 0, k = 0;
 
-	// If all rows traversed.
-	if (i >= row1)
-		return;
-
-	//Excecuted m + 1 times
-	// If i < row1
-	if (j < col2)
-	{
-		if (k < col1)
-		{
-			C[i][j] += A[i][k] * B[k][j];
-			k++;
-
-			matrixMultrecursive(row1, col1, A, row2, col2, B, C); 
-		}
-
-		k = 0;
-		j++;
-		matrixMultrecursive(row1, col1, A, row2, col2, B, C);
-	}
-
-	//Executed n times
-	j = 0;
-	i++;
-	matrixMultrecursive(row1, col1, A, row2, col2, B, C);
-}
-
-//A*B
-//O(n^2) complexity
+//Multiply matrixA with matrixB and put the result in matrixC
+//This algorithm uses recursion and is faster than the long method with O(n^2) complexity
 void matrixMultrecursive(int matrixA[rows][cols], int matrixB[rows][cols], int matrixC[rows][cols], int rowSizeA, int colSizeA, int rowSizeB, int colSizeB)
 {
 	static int i = 0, j = 0, k = 0;
 
-	// If all rows traversed.
+	// If all rows sweeped.
 	if (i >= rowSizeA)
 		return;
 
-	//Excecuted m + 1 times
+	//Executed colSizeB + 1 times
 	// If i < rowSizeA
 	if (j < colSizeB)
 	{
@@ -260,7 +245,7 @@ void matrixMultrecursive(int matrixA[rows][cols], int matrixB[rows][cols], int m
 		matrixMultrecursive(matrixA, matrixB, matrixC, rowSizeA, colSizeA, rowSizeB, colSizeB);
 	}
 
-	//Executed n times
+	//Executed rowSizeA times
 	j = 0;
 	i++;
 	matrixMultrecursive(matrixA, matrixB, matrixC, rowSizeA, colSizeA, rowSizeB, colSizeB);
@@ -277,10 +262,9 @@ int main()
 	int matrixC_recursive_2D_array[rows][cols];
 
 	//Question #2
-	cout << "-----------Question 2-------" << endl << endl;
+	cout << "####--Intro to C++ - Assignment 1---####" << endl << endl;
 	fillMatrix(matrixA_2D_array);
 	fillMatrix(matrixB_2D_array);
-	cout << "----------------------" << endl << endl;
 	
 	//Question #3
 	cout << "-----------Question 3-------" << endl << endl;
@@ -299,6 +283,11 @@ int main()
 	//Question #5
 	cout << "-----------Question 5-------" << endl << endl;
 
+	
+	//Initialize matrices with constant 2 for each entry of A and B and constant 0 for C
+	//**MESSAGE TO GRADER: You can remove the constant 2 passed as arguments in the fillMatrix function
+	//to fill matrices A and B with random numbers. Though, matrix C must be reinitialized with 0 or a new variable
+	//must be used in order to have a correct output
 	fillMatrix(matrixA_2D_array, 2);
 	fillMatrix(matrixB_2D_array, 2);
 	fillMatrix(matrixC_2D_array, 0);
@@ -306,15 +295,19 @@ int main()
 	printMatrix(matrixA_2D_array);
 	cout << "With Matrix B" << endl;
 	printMatrix(matrixB_2D_array);
+
+	//Multiply matrices using long method
 	multMatrices(matrixA_2D_array, matrixB_2D_array, matrixC_2D_array);
-	cout << "Long Matrix Mutliplication (A * B) Result:" << endl;
+	cout << "Long Method Matrix Mutliplication (A * B) Result:" << endl;
+
+	//Print result of operation
 	printMatrix(matrixC_2D_array);
 	cout << "----------------------" << endl << endl;
 
 	//Question #6 
 	cout << "-----------Question 6-------" << endl << endl;
 	
-	//Reinitialize matrices
+	//Reinitialize matrices A, B and C
 	fillMatrix(matrixA_2D_array, 2);
 	fillMatrix(matrixB_2D_array, 2);
 	fillMatrix(matrixC_2D_array, 0);
@@ -328,10 +321,11 @@ int main()
 	cout << "Reinitiliazed Result Matrix C to:" << endl;
 	printMatrix(matrixC_2D_array);
 
-	cout << "Multiplying Matrix A and B with recursive Algorithm" << endl << endl;
-	//matrixMultrecursive(5, 5, matrixA_2D_array, 5, 5, matrixB_2D_array, matrixC_2D_array);
+	//Multiply matrices using recursive algorithm
 	matrixMultrecursive(matrixA_2D_array, matrixB_2D_array, matrixC_2D_array, 5, 5, 5, 5);
-	cout << "Recursive Mutliplication (A * B) Result:" << endl;
+	cout << "Recursive Matrix Mutliplication (A * B) Result:" << endl;
+
+	//Print result of operation
 	printMatrix(matrixC_2D_array);
 	cout << "----------------------" << endl << endl;
 
@@ -340,15 +334,15 @@ int main()
 	//Question #7
 	cout << "-----------Question 7-------" << endl << endl;
 
+	//Initialize new matrix A
 	int matrixA[rows][cols];
-	int matrixB[rows][cols];
-	int matrixC[rows][cols];
 
+	//Initializing pointer to Matrix A
 	int (*matrixA_ptr)[rows][cols];
 	matrixA_ptr = &matrixA;
 
+	//Using new value instead of "const rows" and "const cols" because cannot use const as input for fillMatrixPtr
 	int rows_n_cols = 5;
-	int *ptr_rows_n_cols = &rows_n_cols;
 
 	//Fill Matrix Using Pointers
 	fillMatrixPtr(matrixA_ptr, rows_n_cols, rows_n_cols);
@@ -360,14 +354,17 @@ int main()
 	//Transpose Matrix Using Pointers
 	transposeMatrix(matrixA_ptr, rows_n_cols, rows_n_cols);
 
+	//Print result of operation
 	cout << "Matrix After Transpose Operation" << endl;
 	printMatrixPtr(matrixA_ptr, rows_n_cols, rows_n_cols);
 	cout << "----------------------" << endl << endl;
+
 
 	//Question #8
 	cout << "-----------Question 8-------" << endl << endl;
 	int matrixA1D[rows*cols];
 
+	//Initialize pointer to array
 	int(*matrixA1D_ptr)[rows*cols];
 	matrixA1D_ptr = &matrixA1D;
 
